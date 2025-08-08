@@ -1,0 +1,45 @@
+name: 'Setup Python Embedded for Windows'
+description: 'An GitHub Actions used to download and extract Python embedded into current working directory.'
+author: 'BHznJNs'
+
+inputs:
+  python-version:
+    description: 'The target Python embedded version to download'
+    required: true
+    default: '3.11.9'
+  arch:
+    description: 'The target Python embedded arch to download, value should be one of "amd64", "win32", "arm64".'
+    required: false
+    default: 'amd64'
+
+outputs:
+  python-embedded-path:
+    description: 'The path to the extracted Python embedded directory.'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download and Extract Python Embedded
+      shell: pwsh
+      run: |
+        $pythonVersion = "${{ inputs.python-version }}"
+        $pythonArch = "${{ inputs.arch }}"
+        $extractPath = "./python-embedded"
+
+        $url = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-embed-$pythonArch.zip"
+        $zipFile = "python-embedded.zip"
+
+        Invoke-WebRequest -Uri $url -OutFile $zipFile
+
+        Write-Host "Extracting $zipFile to $extractPath..."
+        Expand-Archive -Path $zipFile -DestinationPath $extractPath -Force
+
+        Remove-Item $zipFile
+        # set output value
+        echo "python-embedded-path=$extractPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+    - name: Verify Python Embedded
+      shell: pwsh
+      run: |
+        $pythonExe = "./python-embedded/python.exe"
+        & $pythonExe --version
