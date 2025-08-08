@@ -37,6 +37,7 @@ runs:
         Remove-Item $zipFile
         # set output value
         echo "python-embedded-path=$extractPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+        echo "value of output python-embedded-path: $extractPath"
 
     - name: Verify Python Embedded
       shell: pwsh
