@@ -15,11 +15,13 @@ inputs:
 outputs:
   python-embedded-path:
     description: 'The path to the extracted Python embedded directory.'
+    value: ${{ steps.download.outputs.python-embedded-path }}
 
 runs:
   using: "composite"
   steps:
     - name: Download and Extract Python Embedded
+      id: download
       shell: pwsh
       run: |
         $pythonVersion = "${{ inputs.python-version }}"
