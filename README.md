@@ -4,6 +4,13 @@ Download and extract Python embedded into current working directory.
 
 - - -
 
+## Usage
+
+```yaml
+- name: Setup Python Embedded for Windows
+  uses: BHznJNs/setup-python-embedded@release-1
+```
+
 ## Parameters
 
 ### Inputs
