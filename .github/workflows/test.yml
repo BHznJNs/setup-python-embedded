@@ -32,7 +32,7 @@ jobs:
         id: verify-version
         shell: pwsh
         run: |
-          $pythonExe = "${{ steps.setup-python.outputs.python-path }}/python.exe"
+          $pythonExe = "${{ steps.setup-python.outputs.python-embedded-path }}/python.exe"
           Write-Host "Executing Python from: $pythonExe"
 
           $versionOutput = & $pythonExe --version 2>&1
@@ -44,7 +44,7 @@ jobs:
         run: |
           $expectedVersion = "${{ matrix.python-version }}"
           $actualVersionOutput = "${{ steps.verify-version.outputs.version-output }}"
-          
+
           if ($actualVersionOutput -notlike "*$expectedVersion*") {
             throw "FAIL: Version mismatch. Expected '$expectedVersion', but got '$actualVersionOutput'."
           }
