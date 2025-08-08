@@ -1,0 +1,52 @@
+name: Test Action
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test-matrix:
+    name: Test with Matrix
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.12.4', '3.11.9', '3.10.14']
+        arch: ['amd64', 'win32']
+
+    steps:
+      # 第一步：检出你的 Action 代码，这样工作流才能找到它
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python Embedded using local action
+        id: setup-python
+        uses: ./
+        with:
+          python-version: ${{ matrix.python-version }}
+          arch: ${{ matrix.arch }}
+
+      - name: Verify Python executable using output path
+        id: verify-version
+        shell: pwsh
+        run: |
+          $pythonExe = "${{ steps.setup-python.outputs.python-path }}/python.exe"
+          Write-Host "Executing Python from: $pythonExe"
+
+          $versionOutput = & $pythonExe --version 2>&1
+          Write-Host "Version output: $versionOutput"
+
+          echo "version-output=$versionOutput" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Verify correct Python version was installed
+        run: |
+          $expectedVersion = "${{ matrix.python-version }}"
+          $actualVersionOutput = "${{ steps.verify-version.outputs.version-output }}"
+          
+          if ($actualVersionOutput -notlike "*$expectedVersion*") {
+            throw "FAIL: Version mismatch. Expected '$expectedVersion', but got '$actualVersionOutput'."
+          }
+          Write-Host "SUCCESS: Python version (${expectedVersion}) verified successfully using the output path."
+        shell: pwsh
